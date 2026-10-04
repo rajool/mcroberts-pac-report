@@ -1,0 +1,13 @@
+# This repo root is the public web root (GitHub Pages serves main): keep scratch files out.
+.DS_Store
+.env
+.env.*
+*.log
+*.local
+node_modules/
+.claude/settings.local.json
+.vscode/
+.idea/
+*.tmp
+*.bak
+*.swp
