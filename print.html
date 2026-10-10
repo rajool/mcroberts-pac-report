@@ -92,7 +92,7 @@ h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
 .acct .arrow path{fill:none;stroke:var(--c);stroke-width:2}
 .acct .lbl{display:block;font:600 7pt/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
 .map{display:grid;gap:8px}
-.gaming-c{--c:var(--gaming)} .operating-c{--c:var(--operating)} .dag-c{--c:var(--dag)}
+.gaming-c{--c:var(--gaming)} .operating-c{--c:var(--operating)}
 .callout{display:flex;gap:10px;padding:10px 12px;border-radius:10px;background:#EAF0F7;border:1px solid #BCD0E6;font-size:9.5pt;color:var(--ink-2)}
 .callout b{color:var(--ink)}
 .callout .ic{flex:none;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--operating);color:var(--operating);display:grid;place-items:center;font:700 9pt/1 var(--f-display)}
@@ -227,7 +227,7 @@ h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
 
 <!-- 3 how it works + history -->
 <section class="page tight">
-  <div class="head"><p class="eyebrow">How PAC money works</p><h2>Three accounts, three jobs</h2><p class="lede">The PAC keeps three bank accounts at Coast Capital Savings. Each one has its own source of money and its own rules. This report covers the gaming account and the family fund; the Dry After Grad account is run by its committee and is not yet included.</p></div>
+  <div class="head"><p class="eyebrow">How PAC money works</p><h2>Two accounts, two jobs</h2><p class="lede">The PAC keeps two bank accounts at Coast Capital Savings. Each one has its own source of money and its own rules. This report covers both for the whole school year. Dry After Grad has its own committee and its own account; the PAC supports it from the gaming account.</p></div>
   <div class="map" id="map"></div>
   <div class="callout"><span class="ic">!</span><p><b>The grant has limits.</b> Provincial rules do not allow gaming money to pay for scholarships, staff lunches or anything the school must provide for classes. The family fund pays for the things the grant cannot.</p></div>
   <div class="head" style="margin-top:6px"><p class="eyebrow">The longer view</p><h3 style="font-size:15pt">Seven years of the grant</h3><p class="lede" id="histLede" style="font-size:10pt;max-width:80ch"></p></div>
@@ -329,13 +329,13 @@ h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
 
   const A = R.accounts;
   const arrow = `<div class="arrow"><svg viewBox="0 0 22 10"><path d="M0 5 H19 M15 1 L20 5 L15 9"/></svg></div>`;
-  $('map').innerHTML = [['gaming','gaming-c'],['operating','operating-c'],['dag','dag-c']].map(([k,c]) => { const a = A[k]; return `<div class="acct ${c}"><div><span class="lbl">Money in</span>${a.funds}</div>${arrow}<div class="who"><h3>${a.name}</h3><p>${a.rules}</p></div>${arrow}<div><span class="lbl">Pays for</span>${a.pays}</div></div>`; }).join('');
+  $('map').innerHTML = [['gaming','gaming-c'],['operating','operating-c']].map(([k,c]) => { const a = A[k]; return `<div class="acct ${c}"><div><span class="lbl">Money in</span>${a.funds}</div>${arrow}<div class="who"><h3>${a.name}</h3><p>${a.rules}</p></div>${arrow}<div><span class="lbl">Pays for</span>${a.pays}</div></div>`; }).join('');
 
   const H = R.history;
   $('histLede').textContent = `Since February 2019 the PAC has received ${money(H.totals.grant,0)} in gaming grants and spent ${money(H.totals.spent,0)} of gaming money on students. ${H.whyMore}`;
   const lastYear = H.years[H.years.length - 1];
   $('histNote').textContent = `${H.note} The last bar ${lastYear.note.charAt(0).toLowerCase() + lastYear.note.slice(1)}.`;
-  V.pairBars($('histChart'), { rows: H.years, height: 170, interactive: false });
+  V.pairBars($('histChart'), { rows: H.years, height: 215, interactive: false });
 
   const G = A.gaming;
   V.balanceLine($('gamingChart'), { data: G.monthly, height: 230, interactive: false });
@@ -356,7 +356,7 @@ h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
   $('kpis').innerHTML = `<div class="kpi"><b>${W.requests}</b><span>requests from ${W.groups} school groups</span></div><div class="kpi"><b>${money(W.requested.value,2)}${mk(W.requested.status)}</b><span>asked for in total</span></div><div class="kpi"><b>${money(W.approved.value,2)}${mk(W.approved.status)}</b><span>approved on November 12, 2025 (the vote is still to be confirmed in the minutes)</span></div><div class="kpi" style="border-color:var(--gaming)"><b style="color:var(--gaming)">${money(G.wishCheque.value,2)}${mk(G.wishCheque.status)}</b><span>paid to the school in August 2026 for the wish list and the Dry After Grad bus</span></div>`;
   V.barsH($('wishChart'), { rows: W.departments.map(d => ({ label: d.name, v: d.requested })), rowH: 17, labelW: 120, interactive: false });
   $('depts').innerHTML = W.departments.map(d => `<div><b>${d.name}</b><span class="num">${money(d.requested,0)}</span><br>${d.items.join(' · ')}</div>`).join('') + `<div style="color:var(--muted)">${W.note}</div>`;
-  const D = A.dag;
+  const D = R.dag;
   $('dag').innerHTML = `<p class="eyebrow" style="grid-column:1/-1;margin-bottom:-4px">Dry After Grad · a safe night for the Class of 2026</p><div class="eq">${D.grads}<small>Graduates reported in Feb</small></div><div class="eq">${money(D.committed.value,0)}${mk(D.committed.status)}<small>Promised by the PAC</small></div><p>About ${money(R.rates.dagPerGrad,0)} for each graduate, for the celebration on ${D.eventDate}. ${D.note}</p>`;
 
   const O = A.operating;
