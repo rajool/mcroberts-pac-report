@@ -15,12 +15,13 @@
   const depts = R.wishlist.departments.map(d => ({ name: d.name, n: Math.max(1, Math.round(d.requested / 100)), v: d.requested }));
   const REQ = depts.reduce((a, d) => a + d.n, 0);                            // 215
   const APPROVED = Math.round(R.wishlist.approved.value / 100);               // 194
-  const DAG = Math.round(R.accounts.dag.committed.value / 100);               // 20
-  const FAMILY = Math.round(R.accounts.operating.raisedReportedTotal.value / 100); // squares of $100 raised by April 8 (reported total)
+  const DAG = Math.round(R.accounts.dag.committed.value / 100);               // 20 (sets the square size only)
+  const PAID = Math.round(R.accounts.gaming.wishCheque.value / 100);          // 229: the 2025–26 wish-list cheque
+  const FAMILY = Math.round(R.accounts.operating.moneyIn.value / 100);        // 17: into the family fund, Sep 2025 – Aug 2026
   const money = window.PACViz.money;
-  const SCHOLAR_SET = R.headline.find(h => h.key === "scholar").value;
+  const SCHOLAR_PAID = R.headline.find(h => h.key === "scholar").value;
   const SCHOLAR_GOAL = R.appeal.goals.find(g => g.label.startsWith("Grade 12")).target;
-  const POOL = Math.max(REQ, APPROVED + DAG + 40, 260);
+  const POOL = Math.max(REQ, APPROVED + DAG + 40, PAID, 260);
 
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   let C = {};
@@ -72,6 +73,8 @@
     const pad = narrow ? 16 : Math.min(40, W * 0.06);
     const top = pad + (narrow ? 44 : 34);
     const availW = W - pad * 2, availH = H - top - pad - 44;
+    // Scene titles start at the block's left edge, or at the stage padding on a narrow stage so they stay on one line.
+    const hx = x => narrow ? pad : x;
     // one unit size for every "$100" square, so sizes compare across steps
     const U = fitBlock(APPROVED + DAG + 30, availW, availH, 0.18, 26);
     const T = U.t, G = T * 0.18;
@@ -84,14 +87,14 @@
       const b = fitBlock(STUDENTS, availW, availH, 0.6);
       const x0 = pad + (availW - b.w) / 2, y0 = vy(b.h);
       dots.forEach((d, i) => { const [x, y] = gridPos(i, b.c, b.t, b.g, x0, y0); Object.assign(d, { tx: x + b.t / 2, ty: y + b.t / 2, ts: b.t / 2, ta: 1 }); });
-      L.push({ x: x0, y: y0 - 30, w: availW, cls: "wr", html: `About <b>${STUDENTS.toLocaleString("en-CA")}</b> students counted for the grant · one dot each` });
+      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: narrow ? `About <b>${STUDENTS.toLocaleString("en-CA")}</b> students · one dot each` : `About <b>${STUDENTS.toLocaleString("en-CA")}</b> students counted for the grant · one dot each` });
     }
     if (key === "grant") {
       const b = block(GRANT, Math.min(U.c, Math.ceil(Math.sqrt(GRANT * 2.2))));
       const x0 = pad + (availW - b.w) / 2, y0 = vy(b.h);
       dots.forEach((d, i) => { const k = Math.floor(i / 5); const [x, y] = gridPos(k, b.c, T, G, x0, y0); Object.assign(d, { tx: x + T / 2, ty: y + T / 2, ts: 0, ta: 0, delay: (k % b.c) * 0.4 }); });
       tiles.slice(0, GRANT).forEach((t, i) => { const [x, y] = gridPos(i, b.c, T, G, x0, y0); Object.assign(t, { tx: x, ty: y, ts: T, ta: 1, color: "gaming", delay: (i % b.c) * 0.5 + 6 }); });
-      L.push({ x: x0, y: y0 - 30, w: availW, cls: "wr", html: `<b>${money(R.accounts.gaming.grant.value, 0)}</b> gaming grant · 1 square = $100` });
+      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `<b>${money(R.accounts.gaming.grant.value, 0)}</b> gaming grant · 1 square = $100` });
     }
     if (key === "asks") {
       // one cluster per school group, flowed into rows, centred vertically
@@ -101,8 +104,8 @@
         for (const d of depts) {
           const c = Math.max(2, Math.ceil(Math.sqrt(d.n * 1.4)));
           const rows = Math.ceil(d.n / c), w = c * t + (c - 1) * g, h = rows * t + (rows - 1) * g;
-          const cellW = Math.max(w, narrow ? 96 : 118);
-          if (x + cellW > W - pad && x > pad) { x = pad; y += rowH + 52; rowH = 0; }
+          const cellW = Math.max(w, narrow ? Math.floor((availW - 24) / 3) : 118);
+          if (x + cellW > W - pad && x > pad) { x = pad; y += rowH + (narrow ? 44 : 52); rowH = 0; }
           placed.push({ d, c, x, y, w, h, g });
           x += cellW + (narrow ? 12 : 22); rowH = Math.max(rowH, h);
         }
@@ -121,30 +124,39 @@
       });
       L.push({ x: pad, y: top + dy - 30, w: availW, cls: "wr", html: `<b>${money(R.wishlist.requested.value, 0)}</b> asked for by ${R.wishlist.groups} school groups` });
     }
-    if (key === "approved" || key === "promised") {
-      const skip = (U.c - (APPROVED % U.c)) % U.c;               // start Dry After Grad on a new row
-      const total = key === "approved" ? APPROVED + 20 : APPROVED + skip + DAG;
+    if (key === "approved" || key === "paid") {
+      const total = key === "approved" ? APPROVED : PAID;
       const b = block(total);
       const x0 = pad + (availW - b.w) / 2, y0 = vy(b.h);
       for (let i = 0; i < APPROVED; i++) { const [x, y] = gridPos(i, U.c, T, G, x0, y0); Object.assign(tiles[i], { tx: x, ty: y, ts: T, ta: 1, color: "gaming" }); }
       if (key === "approved") {
-        for (let i = APPROVED; i < APPROVED + 20; i++) { const [x, y] = gridPos(i, U.c, T, G, x0, y0); Object.assign(tiles[i], { tx: x, ty: y, ts: T, ta: 0.35, color: "gaming", hollow: true }); }
-        L.push({ x: x0, y: y0 - 30, w: availW, cls: "wr", html: `<b>${money(R.wishlist.approved.value, 0)}</b> approved for the wish list` });
+        L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `<b>${money(R.wishlist.approved.value, 0)}</b> approved for the wish list` });
       } else {
-        for (let i = 0; i < DAG; i++) { const [x, y] = gridPos(APPROVED + skip + i, U.c, T, G, x0, y0); Object.assign(tiles[APPROVED + i], { tx: x, ty: y, ts: T, ta: 1, color: "dag", delay: i * 0.6 }); }
-        L.push({ x: x0, y: y0 - 30, w: availW, cls: "wr", html: `<b>${money(R.wishlist.approved.value + R.accounts.dag.committed.value, 0)}</b> promised · wish list <i class="k g"></i> + Dry After Grad <i class="k d"></i>` });
-        L.push({ x: x0, y: y0 + b.h + 12, w: Math.min(availW, 460), cls: "small wr", html: `The 2025–26 grant was <b>${money(R.accounts.gaming.grant.value, 0)}</b>. Interest and money from earlier years cover the difference.` });
+        for (let i = APPROVED; i < PAID; i++) { const [x, y] = gridPos(i, U.c, T, G, x0, y0); Object.assign(tiles[i], { tx: x, ty: y, ts: T, ta: 1, color: "gaming", delay: (i - APPROVED) * 0.6 }); }
+        L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `<b>${money(R.accounts.gaming.wishCheque.value, 0)}</b> paid to the school in August 2026` });
+        L.push({ x: x0, y: y0 + b.h + 12, w: Math.min(W - pad - x0, 460), cls: "small wr", html: `The 2025–26 grant was <b>${money(R.accounts.gaming.grant.value, 0)}</b>. Interest and money from earlier years cover the difference.` });
       }
     }
     if (key === "family") {
       const b = block(FAMILY, 6);
       const x0 = pad + (availW - b.w) / 2, y0 = vy(b.h);
       for (let i = 0; i < FAMILY; i++) { const [x, y] = gridPos(i, 6, T, G, x0, y0); Object.assign(tiles[i], { tx: x, ty: y, ts: T, ta: 1, color: "operating", delay: i * 0.8 }); }
-      L.push({ x: x0, y: y0 - 30, w: availW, cls: "wr", html: `About <b>${money(FAMILY * 100, 0)}</b> from families by April 8` });
+      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `About <b>${money(FAMILY * 100, 0)}</b> into the family fund this year` });
     }
-    if (key === "scholarSet" || key === "scholarGoal") {
-      const groups = key === "scholarSet" ? 3 : 5;
-      const t = Math.max(T, Math.min(40, (availW - (groups - 1) * 28) / (groups * 2.2)));   // bigger squares, same for both steps
+    if (key === "scholarSet") {
+      // One group, at the square size of the 2026–27 goal groups so the two amounts compare.
+      // Whole hundreds are full squares; a remainder under one hundred is one faded square.
+      const t = Math.max(T, Math.min(40, (availW - 4 * 28) / (5 * 2.2))), g = t * 0.18, c = 5;
+      const full = Math.floor(SCHOLAR_PAID / 100), n = full + (SCHOLAR_PAID % 100 ? 1 : 0);
+      const rows = Math.ceil(n / c), bw = c * t + (c - 1) * g, bh = rows * t + (rows - 1) * g;
+      const x0 = pad + (availW - bw) / 2, y0 = vy(bh + 40);
+      for (let i = 0; i < n; i++) { const [x, y] = gridPos(i, c, t, g, x0, y0); Object.assign(tiles[i], { tx: x, ty: y, ts: t, ta: i < full ? 1 : 0.4, color: "operating", delay: i * 0.8 }); }
+      L.push({ x: x0, y: y0 + bh + 10, w: W - pad - x0, cls: "small", html: `2025–26<br><span>${money(SCHOLAR_PAID, 0)} paid</span>` });
+      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: `<b>${money(SCHOLAR_PAID, 0)}</b> paid for scholarships in June 2026` });
+    }
+    if (key === "scholarGoal") {
+      const groups = 5;
+      const t = Math.max(T, Math.min(40, (availW - (groups - 1) * 28) / (groups * 2.2)));   // bigger squares for the five goal groups
       const g = t * 0.18, gw = 2 * t + g, gh = 3 * t + 2 * g;
       const gap = Math.min(34, Math.max(12, (availW - groups * gw) / Math.max(1, groups - 1)));
       const spacing = gw + gap, totalW = groups * gw + (groups - 1) * gap;
@@ -153,12 +165,11 @@
       for (let s = 0; s < groups; s++) {
         for (let i = 0; i < 5; i++, k++) {
           const [x, y] = gridPos(i, 2, t, g, x0 + s * spacing, y0);
-          const filled = key === "scholarSet";
-          Object.assign(tiles[k], { tx: x, ty: y, ts: t, ta: filled ? 1 : 0.9, color: "operating", hollow: !filled, dashed: !filled, delay: s * 3 + i * 0.4 });
+          Object.assign(tiles[k], { tx: x, ty: y, ts: t, ta: 0.9, color: "operating", hollow: true, dashed: true, delay: s * 3 + i * 0.4 });
         }
-        L.push({ x: x0 + s * spacing, y: y0 + gh + 10, w: spacing, cls: "small", html: key === "scholarSet" ? `2025–26<br><span>${money(R.rates.scholarship, 0)}</span>` : `No. ${s + 1}<br><span class="w">To fund</span>` });
+        L.push({ x: x0 + s * spacing, y: y0 + gh + 10, w: spacing, cls: "small", html: `No. ${s + 1}<br><span class="w">To fund</span>` });
       }
-      L.push({ x: x0, y: y0 - 30, w: availW, cls: "wr", html: key === "scholarSet" ? `<b>${money(SCHOLAR_SET, 0)}</b> set aside · three ${money(R.rates.scholarship, 0)} scholarships` : `Proposed 2026–27 goal <b>${money(SCHOLAR_GOAL, 0)}</b> · five scholarships` });
+      L.push({ x: hx(x0), y: y0 - 30, w: W - pad - hx(x0), cls: "wr", html: narrow ? `2026⁠–⁠27 goal <b>${money(SCHOLAR_GOAL, 0)}</b> · 5 scholarships` : `Proposed 2026⁠–⁠27 goal <b>${money(SCHOLAR_GOAL, 0)}</b> · five scholarships` });
     }
     setLabels(L);
     if (reduce) { [...dots, ...tiles].forEach(o => { o.x = o.tx; o.y = o.ty; o.s = o.ts; o.a = o.ta; o.delay = 0; }); draw(); }
