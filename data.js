@@ -18,7 +18,7 @@ const GRANT = 20700, WISH_APPROVED = 19428.36, WISH_PAID = 22929, DAG_SUPPORT = 
 // After the year this report covers; not part of the period's figures.
 const GRANT_NEXT = 20780;     // Bank record, gaming account: deposit on Oct 1, 2026
 const GAMING_OCT9 = 23651.18; // Bank record, gaming account: balance on Oct 9, 2026
-const DAG_SOURCE = "Treasurer report, Apr 8, 2026 minutes. Payment not shown in the PAC's gaming or family fund accounts; the Dry After Grad account is not yet seen.";
+const DAG_SOURCE = "Treasurer report, Apr 8, 2026 minutes. No separate payment to the Dry After Grad committee shows in either PAC account.";
 const WJ = "\u2060"; // word joiner: keeps "2026–27" on one line
 const RATES = { gamingPerStudent: 20, dagPerGrad: 10, scholarship: 500 };
 const round2 = n => Math.round(n * 100) / 100;
@@ -34,8 +34,8 @@ const R = {
     coverage: {
       bankRead: "October 9, 2026",
       // short: one sentence for the draft banner; long: for the cover note and footer
-      short: "The gaming account and the family fund are checked against the PAC's bank record for the whole year; the Dry After Grad account is not yet seen.",
-      long: "Gaming account and family fund: every transaction from September 1, 2025 to August 31, 2026, from the PAC's online banking, read October 9, 2026. The Dry After Grad account is kept apart and its statements are still awaited."
+      short: "Both PAC accounts, the gaming account and the family fund, are checked against the PAC's bank record for the whole year.",
+      long: "Gaming account and family fund: every transaction from September 1, 2025 to August 31, 2026, from the PAC's online banking, read October 9, 2026. The Dry After Grad committee keeps its own account, which is not part of this report."
     },
     // status key: label shown on chips, mark printed in the PDF, one-line description for tooltips and the PDF key
     statuses: [
@@ -162,18 +162,16 @@ const R = {
         { name: "Other cheque", value: 189, detail: "Cashed in December 2025 · what it paid for is to be confirmed", status: "confirmed" },
         { name: "Staff thank-you breakfast", value: null, detail: `June 24 · families gave ${usd(BREAKFAST_GIFTS)} · what it cost and how it was paid are still to be confirmed`, status: "pending" }
       ]
-    },
-    dag: {
-      name: "Dry After Grad account",
-      funds: "Dry After Grad committee fundraising, plus PAC support",
-      pays: "A safe, alcohol-free celebration for graduates",
-      rules: "Run by the Dry After Grad committee",
-      grads: 210,
-      committed: { value: DAG_SUPPORT, status: "reported", source: DAG_SOURCE },
-      eventDate: `June 22${WJ}–${WJ}23, 2026`,
-      note: "Payment not shown in the PAC's gaming or family fund accounts. The committee's own accounts are not yet in this report.",
-      balance: { value: null, status: "pending", source: "Dry After Grad account statements, not yet seen" }
     }
+  },
+
+  // Dry After Grad: what the PAC promised. A parent committee runs it and keeps its own bank account,
+  // which is not a PAC account and not part of this report. The PAC's support comes from the gaming account.
+  dag: {
+    grads: 210,
+    committed: { value: DAG_SUPPORT, status: "reported", source: DAG_SOURCE },
+    eventDate: `June 22${WJ}–${WJ}23, 2026`,
+    note: "A parent committee runs Dry After Grad and keeps its own bank account. No separate payment to the committee shows in either PAC account."
   },
 
   wishlist: {
@@ -216,7 +214,7 @@ const R = {
     meetings: ["2025-09-10", "2025-10-08", "2025-11-12", "2026-01-14", "2026-02-11", "2026-04-08", "2026-05-13"],
     controls: [
       "Gaming money is kept in its own bank account, as the Province requires",
-      "Three accounts at Coast Capital Savings: gaming, family fund and Dry After Grad",
+      "Two accounts at Coast Capital Savings: the gaming account and the family fund",
       "A treasurer's report at every PAC meeting"
     ],
     nextYear: [
@@ -259,7 +257,7 @@ const R = {
   },
 
   pendingDocs: [
-    `Dry After Grad account statements, the committee's income and costs, and when and from which account the ${usd(DAG_SUPPORT, 2)} the PAC promised was paid`,
+    `Whether the ${usd(DAG_SUPPORT, 2)} the PAC promised to Dry After Grad was paid, and whether it is part of the August cheque to the school`,
     `The final wish list with the amount paid for each item (the PAC paid the school ${usd(WISH_PAID, 2)})`,
     "What three cheques from the family fund paid for (December 2025, April and July 2026), with receipts",
     `How many Grade 12 scholarships the ${usd(SCHOLAR_PAID, 2)} paid for`,

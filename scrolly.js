@@ -15,7 +15,7 @@
   const depts = R.wishlist.departments.map(d => ({ name: d.name, n: Math.max(1, Math.round(d.requested / 100)), v: d.requested }));
   const REQ = depts.reduce((a, d) => a + d.n, 0);                            // 215
   const APPROVED = Math.round(R.wishlist.approved.value / 100);               // 194
-  const DAG = Math.round(R.accounts.dag.committed.value / 100);               // 20 (sets the square size only)
+  const DAG = Math.round(R.dag.committed.value / 100);                        // 20 (sets the square size only)
   const PAID = Math.round(R.accounts.gaming.wishCheque.value / 100);          // 229: the 2025–26 wish-list cheque
   const FAMILY = Math.round(R.accounts.operating.moneyIn.value / 100);        // 17: into the family fund, Sep 2025 – Aug 2026
   const money = window.PACViz.money;

@@ -67,7 +67,7 @@
   const statusWord = s => statusMeta(s).description || "";
   /* Fill every [data-fmt] element from window.REPORT, so copy never repeats a figure. */
   function fillCopy(root) {
-    const R = window.REPORT, G = R.accounts.gaming, W = R.wishlist, D = R.accounts.dag, O = R.accounts.operating, A = R.appeal;
+    const R = window.REPORT, G = R.accounts.gaming, W = R.wishlist, D = R.dag, O = R.accounts.operating, A = R.appeal;
     const headline = k => R.headline.find(h => h.key === k).value;
     const scholarGoal = A.goals.find(g => g.label.startsWith("Grade 12")).target, staffGoal = A.goals.find(g => g.label.startsWith("Staff")).target;
     const T = {
