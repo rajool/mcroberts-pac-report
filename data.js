@@ -18,7 +18,7 @@ const GRANT = 20700, WISH_APPROVED = 19428.36, WISH_PAID = 22929, DAG_SUPPORT = 
 // After the year this report covers; not part of the period's figures.
 const GRANT_NEXT = 20780;     // Bank record, gaming account: deposit on Oct 1, 2026
 const GAMING_OCT9 = 23651.18; // Bank record, gaming account: balance on Oct 9, 2026
-const DAG_SOURCE = "Treasurer report, Apr 8, 2026 minutes. No separate payment to the Dry After Grad committee shows in either PAC account.";
+const DAG_SOURCE = "Treasurer report, Apr 8, 2026 minutes. No separate payment to the Dry After Grad committee shows in either PAC account between September 2025 and August 2026.";
 const WJ = "\u2060"; // word joiner: keeps "2026–27" on one line
 const RATES = { gamingPerStudent: 20, dagPerGrad: 10, scholarship: 500 };
 const round2 = n => Math.round(n * 100) / 100;
@@ -171,7 +171,7 @@ const R = {
     grads: 210,
     committed: { value: DAG_SUPPORT, status: "reported", source: DAG_SOURCE },
     eventDate: `June 22${WJ}–${WJ}23, 2026`,
-    note: "A parent committee runs Dry After Grad and keeps its own bank account. No separate payment to the committee shows in either PAC account."
+    note: "A parent committee runs Dry After Grad and keeps its own bank account. No separate payment to the committee shows in either PAC account between September 2025 and August 2026."
   },
 
   wishlist: {
@@ -257,7 +257,7 @@ const R = {
   },
 
   pendingDocs: [
-    `Whether the ${usd(DAG_SUPPORT, 2)} the PAC promised to Dry After Grad was paid, and whether it is part of the August cheque to the school`,
+    `The school's request to be paid back for the August cheque, showing whether it includes the ${usd(DAG_SUPPORT, 2)} the PAC promised to Dry After Grad`,
     `The final wish list with the amount paid for each item (the PAC paid the school ${usd(WISH_PAID, 2)})`,
     "What three cheques from the family fund paid for (December 2025, April and July 2026), with receipts",
     `How many Grade 12 scholarships the ${usd(SCHOLAR_PAID, 2)} paid for`,
