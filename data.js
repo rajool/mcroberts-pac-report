@@ -80,7 +80,7 @@ const R = {
     gaming: {
       name: "Gaming account",
       funds: "The BC Community Gaming Grant: $20 for each student, plus bank interest",
-      pays: "The wish list, clubs, teams, trips and events outside regular classes",
+      pays: "The wish list, Dry After Grad, clubs, teams, trips and events outside regular classes",
       rules: "Provincial rules: spend within 24 months, a yearly report to the Province, two signatures on every cheque",
       opening: { value: 22954.79, date: "2025-08-31", status: "confirmed", source: "Bank record, gaming account, Aug 31, 2025; also the PAC ledger and the Sep 10, 2025 treasurer report" },
       carriedCheque: { value: CHEQUE_2425, number: "0098", written: "2025-07-14", writtenLabel: "July 14, 2025", cleared: "2025-09-16", clearedLabel: "September 16, 2025", status: "confirmed", source: "Bank record, gaming account: cheque 0098 to the school for the 2024–25 wish list, cashed Sep 16, 2025" },
@@ -166,7 +166,7 @@ const R = {
   },
 
   // Dry After Grad: what the PAC promised. A parent committee runs it and keeps its own bank account,
-  // which is not a PAC account and not part of this report. The PAC's support comes from the gaming account.
+  // separate from the PAC's two accounts and not part of this report. The PAC's support comes from the gaming account.
   dag: {
     grads: 210,
     committed: { value: DAG_SUPPORT, status: "reported", source: DAG_SOURCE },

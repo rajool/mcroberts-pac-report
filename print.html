@@ -227,7 +227,7 @@ h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
 
 <!-- 3 how it works + history -->
 <section class="page tight">
-  <div class="head"><p class="eyebrow">How PAC money works</p><h2>Two accounts, two jobs</h2><p class="lede">The PAC keeps two bank accounts at Coast Capital Savings, each with its own source of money and its own rules. This report covers both for the whole school year. Dry After Grad has its own committee and its own account; the PAC supports it from the gaming account.</p></div>
+  <div class="head"><p class="eyebrow">How PAC money works</p><h2>Two accounts, two jobs</h2><p class="lede">The PAC keeps two bank accounts at Coast Capital Savings. Each one has its own source of money and its own rules. This report covers both for the whole school year. Dry After Grad has its own committee and its own account; the PAC supports it from the gaming account.</p></div>
   <div class="map" id="map"></div>
   <div class="callout"><span class="ic">!</span><p><b>The grant has limits.</b> Provincial rules do not allow gaming money to pay for scholarships, staff lunches or anything the school must provide for classes. The family fund pays for the things the grant cannot.</p></div>
   <div class="head" style="margin-top:6px"><p class="eyebrow">The longer view</p><h3 style="font-size:15pt">Seven years of the grant</h3><p class="lede" id="histLede" style="font-size:10pt;max-width:80ch"></p></div>
@@ -335,7 +335,7 @@ h3{font-size:11.5pt;font-weight:700;font-stretch:104%}
   $('histLede').textContent = `Since February 2019 the PAC has received ${money(H.totals.grant,0)} in gaming grants and spent ${money(H.totals.spent,0)} of gaming money on students. ${H.whyMore}`;
   const lastYear = H.years[H.years.length - 1];
   $('histNote').textContent = `${H.note} The last bar ${lastYear.note.charAt(0).toLowerCase() + lastYear.note.slice(1)}.`;
-  V.pairBars($('histChart'), { rows: H.years, height: 170, interactive: false });
+  V.pairBars($('histChart'), { rows: H.years, height: 215, interactive: false });
 
   const G = A.gaming;
   V.balanceLine($('gamingChart'), { data: G.monthly, height: 230, interactive: false });
