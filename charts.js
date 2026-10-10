@@ -72,10 +72,11 @@
     const scholarGoal = A.goals.find(g => g.label.startsWith("Grade 12")).target, staffGoal = A.goals.find(g => g.label.startsWith("Staff")).target;
     const T = {
       rate: money(R.rates.gamingPerStudent, 0), dagRate: money(R.rates.dagPerGrad, 0), scholarRate: money(R.rates.scholarship, 0),
-      grant: money(G.grant.value, 0), grant2: money(G.grant.value, 2), requested: money(W.requested.value, 0), approved: money(W.approved.value, 0),
-      dag: money(D.committed.value, 0), promised: money(W.approved.value + D.committed.value, 0),
-      family: money(Math.round(O.raisedReportedTotal.value / 100) * 100, 0),
-      scholarSet: money(headline("scholar"), 0), scholarGoal: money(scholarGoal, 0), staffGoal: money(staffGoal, 0), scholarGap: money(scholarGoal - headline("scholar"), 0),
+      grant: money(G.grant.value, 0), grant2: money(G.grant.value, 2), requested: money(W.requested.value, 0), approved: money(W.approved.value, 0), approved2: money(W.approved.value, 2),
+      dag: money(D.committed.value, 0),
+      family: money(Math.round(O.moneyIn.value / 100) * 100, 0),
+      paid: money(G.wishCheque.value, 0), wishChequeAmt: money(G.wishCheque.value, 2), gamingClosing: money(G.closing.value, 2),
+      scholarPaid: money(headline("scholar"), 0), scholarGoal: money(scholarGoal, 0), staffGoal: money(staffGoal, 0), scholarGap: money(scholarGoal - headline("scholar"), 0),
       cheque: G.carriedCheque.number, chequeDate: G.carriedCheque.writtenLabel, chequeAmt: money(G.carriedCheque.value, 2)
     };
     root.querySelectorAll("[data-fmt]").forEach(n => { const v = T[n.dataset.fmt]; if (v == null) throw new Error("Unknown copy token " + n.dataset.fmt); n.textContent = v; });
@@ -143,7 +144,7 @@
     if (interactive) {
       data.forEach((d, i) => {
         const hit = el("rect", { x: m.l + (iw * i) / data.length, y: m.t, width: iw / data.length, height: ih, class: "hit", tabindex: 0 }, svg);
-        const html = `<b>${d.label} ${d.m.slice(0, 4)}</b><br>${d.v == null ? "Waiting on the bank statement" : money(d.v, 2)}<span class="tip-status">${d.v == null ? "" : statusWord(d.status)}</span>${d.note ? `<span class="tip-note">${d.note}</span>` : ""}`;
+        const html = `<b>${d.label} ${d.m.slice(0, 4)}</b><br>${d.v == null ? "Pending" : money(d.v, 2)}<span class="tip-status">${d.v == null ? "" : statusWord(d.status)}</span>${d.note ? `<span class="tip-note">${d.note}</span>` : ""}`;
         hit.setAttribute("role", "img");
         hit.setAttribute("aria-label", plain(html));
         hit.addEventListener("mousemove", e => showTip(e, html));
@@ -151,7 +152,7 @@
         hit.addEventListener("focus", () => { const r = hit.getBoundingClientRect(); showTip({ clientX: r.left + r.width / 2, clientY: r.top + 40 }, html); });
         hit.addEventListener("blur", hideTip);
       });
-      dataTable(host, opts.label || "Balance chart", ["Month", "Balance", "Status", "Note"], data.map(d => [`${d.label} ${d.m.slice(0, 4)}`, d.v == null ? "Waiting on the bank statement" : money(d.v, 2), d.v == null ? "" : statusWord(d.status), d.note ? plain(d.note) : ""]));
+      dataTable(host, opts.label || "Balance chart", ["Month", "Balance", "Status", "Note"], data.map(d => [`${d.label} ${d.m.slice(0, 4)}`, d.v == null ? "Pending" : money(d.v, 2), d.v == null ? "" : statusWord(d.status), d.note ? plain(d.note) : ""]));
     }
     return svg;
   }
@@ -262,17 +263,17 @@
     const x = i => m.l + (iw * i) / (data.length - 1);
     el("path", { d: "M" + data.map((d, i) => `${x(i)},${y(d.v)}`).join(" L"), class: "line operating" }, svg);
     data.forEach((d, i) => {
-      el("circle", { cx: x(i), cy: y(d.v), r: 4.5, class: "dot ring operating" }, svg);
-      text(svg, x(i), H - 8, d.label, "tick", "middle");
-      if (i === 0 || i === data.length - 1) text(svg, x(i), i === 0 ? y(d.v) - 10 : y(d.v) + 20, money(d.v, 0), "note strong", i === 0 ? "start" : "end");
+      el("circle", { cx: x(i), cy: y(d.v), r: 4.5, class: "dot operating " + (d.status === "confirmed" ? "solid" : "ring") }, svg);
+      text(svg, x(i), H - 8, iw / (data.length - 1) < 26 ? d.label.charAt(0) : d.label, "tick", "middle");
+      if (i === 0 || i === data.length - 1) text(svg, i === 0 ? x(i) - 4 : x(i), i === 0 ? y(d.v) - 14 : y(d.v) + 20, money(d.v, 0), "note strong", i === 0 ? "start" : "end");
       if (interactive) {
         const hit = el("rect", { x: x(i) - iw / (data.length - 1) / 2, y: m.t, width: iw / (data.length - 1), height: ih, class: "hit" }, svg);
-        const html = `<b>Reported ${niceDate(d.date)}</b><br>${money(d.v, 2)}<span class="tip-status">Treasurer's report at the meeting</span>`;
+        const html = `<b>${niceDate(d.date)}</b><br>${money(d.v, 2)}<span class="tip-status">${statusWord(d.status)}</span>${d.note ? `<span class="tip-note">${d.note}</span>` : ""}`;
         hit.addEventListener("mousemove", e => showTip(e, html));
         hit.addEventListener("mouseleave", hideTip);
       }
     });
-    if (interactive) dataTable(host, opts.label || "Family fund balance", ["Reported on", "Balance"], data.map(d => [niceDate(d.date), money(d.v, 2)]));
+    if (interactive) dataTable(host, opts.label || "Family fund balance", ["Date", "Balance", "Note"], data.map(d => [niceDate(d.date), money(d.v, 2), d.note || ""]));
     return svg;
   }
 

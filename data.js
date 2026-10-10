@@ -1,8 +1,8 @@
 /* McRoberts PAC — 2025–26 financial report data.
    Every figure carries a status and a source so the report can show what is
    confirmed and what still waits on documents.
-   status: "confirmed" = matches the PAC ledger and the treasurer reports (labels live in meta.statuses)
-           "reported"  = stated in a treasurer report in the minutes; bank statement not yet seen
+   status: "confirmed" = matches the PAC's bank record (Coast Capital online banking, read Oct 9, 2026; labels live in meta.statuses)
+           "reported"  = reported at a PAC meeting or in the PAC's records; not shown on the bank record
            "derived"   = worked out from confirmed or reported figures
            "pending"   = not yet known; waiting on documents
    mode:   "draft" shows the draft strip, the documents still awaited and the source chips;
@@ -12,9 +12,16 @@
    working record, never here. */
 window.REPORT = (function () {
 // Each fact is written once here; text and derived figures below refer to these.
-const GRANT = 20700, WISH_APPROVED = 19428.36, DAG_SUPPORT = 2040, SCHOLAR_SET_ASIDE = 1500,
-      CHEQUE_2425 = 18453.12, GAMING_BALANCE_MAY13 = 25597.82;
+const GRANT = 20700, WISH_APPROVED = 19428.36, WISH_PAID = 22929, DAG_SUPPORT = 2040,
+      SCHOLAR_PAID = 1250, BREAKFAST_GIFTS = 435,
+      CHEQUE_2425 = 18453.12, GAMING_CLOSING = 2865.41, FAMILY_IN = 1732.74;
+// After the year this report covers; not part of the period's figures.
+const GRANT_NEXT = 20780;     // Bank record, gaming account: deposit on Oct 1, 2026
+const GAMING_OCT9 = 23651.18; // Bank record, gaming account: balance on Oct 9, 2026
+const DAG_SOURCE = "Treasurer report, Apr 8, 2026 minutes. Payment not shown in the PAC's gaming or family fund accounts; the Dry After Grad account is not yet seen.";
+const WJ = "\u2060"; // word joiner: keeps "2026–27" on one line
 const RATES = { gamingPerStudent: 20, dagPerGrad: 10, scholarship: 500 };
+const round2 = n => Math.round(n * 100) / 100;
 const usd = (v, dp) => "$" + v.toLocaleString("en-CA", { minimumFractionDigits: dp == null ? (v % 1 ? 2 : 0) : dp, maximumFractionDigits: dp == null ? (v % 1 ? 2 : 0) : dp });
 const R = {
   rates: RATES,
@@ -25,47 +32,48 @@ const R = {
     orgShort: "McRoberts PAC",
     period: "School year September 1, 2025 – August 31, 2026",
     coverage: {
-      ledgerThrough: "January 2026",
-      reportsThrough: "May 13, 2026",
-      bankStatements: "not yet received",
+      bankRead: "October 9, 2026",
       // short: one sentence for the draft banner; long: for the cover note and footer
-      short: "PAC ledger through January 2026; treasurer reports through May 13, 2026; bank statements not yet received.",
-      long: "PAC ledger through January 2026; treasurer reports through May 13, 2026; bank statements not yet received. May to August 2026 will be added from the bank statements."
+      short: "The gaming account and the family fund are checked against the PAC's bank record for the whole year; the Dry After Grad account is not yet seen.",
+      long: "Gaming account and family fund: every transaction from September 1, 2025 to August 31, 2026, from the PAC's online banking, read October 9, 2026. The Dry After Grad account is kept apart and its statements are still awaited."
     },
     // status key: label shown on chips, mark printed in the PDF, one-line description for tooltips and the PDF key
     statuses: [
-      { key: "confirmed", label: "In PAC ledger", mark: "", description: "Matches the PAC ledger and the treasurer reports" },
-      { key: "reported", label: "Reported", mark: "R", description: "Reported at a PAC meeting, not yet checked against a bank statement" },
+      { key: "confirmed", label: "Bank record", mark: "", description: "Matches the PAC's bank record (online banking, read October 9, 2026)" },
+      { key: "reported", label: "Reported", mark: "R", description: "Reported at a PAC meeting; not shown on the bank record" },
       { key: "derived", label: "Worked out", mark: "W", description: "Worked out from other figures" },
       { key: "pending", label: "Pending", mark: "", description: "Waiting for documents" }
     ],
     basis: "Not audited · Money is counted when it entered or left the bank · Canadian dollars",
     preparedBy: { role: "2026–27 Co-Treasurer" },
     reviewer: { role: "Treasurer" },
-    edition: "Draft for review · September 2026"
+    edition: "Draft for review · October 2026"
   },
 
   headline: [
     { key: "grant", value: GRANT, label: "BC Community Gaming Grant received", note: `${usd(RATES.gamingPerStudent)} for each student counted by the Province`, status: "confirmed",
-      source: "PAC ledger, October 2025 deposit; grant letter not yet seen" },
-    { key: "wishlist", value: WISH_APPROVED, label: "Approved (to be confirmed) for the teachers' wish list", note: "From 16 requests by 10 school groups", status: "reported",
-      source: "Motion at the Nov 12, 2025 meeting; the minutes record the motion but not the vote, and later treasurer reports treat it as approved" },
+      source: "Bank record, gaming account: deposit on Oct 3, 2025; grant letter not yet seen" },
+    { key: "wishlist", value: WISH_PAID, label: "Paid to the school for the wish list and the Dry After Grad bus", note: "One cheque, written July 20, 2026, cashed August 22, 2026", status: "confirmed",
+      source: "Bank record, gaming account: cheque 0099 to the school for the 2025–26 wish list and the Dry After Grad bus, written Jul 20, 2026, cashed Aug 22, 2026" },
     { key: "dag", value: DAG_SUPPORT, label: "Promised to Dry After Grad", note: `About ${usd(RATES.dagPerGrad)} for each graduate`, status: "reported",
-      source: "Treasurer report, Apr 8, 2026 minutes" },
-    { key: "scholar", value: SCHOLAR_SET_ASIDE, label: "Set aside for Grade 12 scholarships", note: `${SCHOLAR_SET_ASIDE / RATES.scholarship} awards of ${usd(RATES.scholarship)}`, status: "reported",
-      source: "Treasurer reports, Apr 8 and May 13, 2026 minutes; payment not yet seen" }
+      source: DAG_SOURCE },
+    { key: "scholar", value: SCHOLAR_PAID, label: "Paid for Grade 12 scholarships", note: "One cheque to the school, June 2026", status: "confirmed",
+      source: "Bank record, family fund: cheque 0188 to the school for Grade 12 scholarships, written Jun 1, 2026, cashed Jun 10, 2026; the number of awards is to be confirmed" }
   ],
 
   timeline: [
     { date: "2025-09-10", when: "Sep 10", label: "New executive elected", detail: "First meeting of the year", kind: "meeting" },
-    { date: "2025-10-15", when: "Oct 15–20", label: "Samosa pre-order sale", detail: "17 family orders · 129 pieces", kind: "fundraiser" },
-    { date: "2025-10-31", when: "October", label: "Gaming grant arrived", detail: `${usd(GRANT)} from the Province of BC`, kind: "money" },
-    { date: "2025-11-12", when: "Nov 12", label: "Wish list approved (to be confirmed)", detail: `${usd(WISH_APPROVED)} for school groups' requests`, kind: "decision" },
-    { date: "2025-12-15", when: "December", label: "Purdys chocolate sale", detail: "$516.74 raised", kind: "fundraiser" },
-    { date: "2026-02-11", when: "Feb 11", label: "Dry After Grad support", detail: "About $10 per graduate agreed", kind: "decision" },
-    { date: "2026-02-20", when: "Feb 20–Mar 2", label: "Bubble tea sale", detail: "39 orders · 45 drinks", kind: "fundraiser" },
+    { date: "2025-10-03", when: "Oct 3", label: "Gaming grant arrived", detail: `${usd(GRANT)} from the Province of BC`, kind: "money" },
+    { date: "2025-10-15", when: "Oct 15–21", label: "Samosa pre-order sale", detail: "17 family orders · 129 pieces", kind: "fundraiser" },
+    { date: "2025-11-12", when: "Nov 12", label: "Wish list approved", detail: `${usd(WISH_APPROVED)} for school groups' requests · vote to be confirmed`, kind: "decision" },
+    { date: "2025-12-15", when: "December", label: "Purdys chocolate sale", detail: "$516.74, deposited February 12", kind: "fundraiser" },
+    { date: "2026-02-11", when: "Feb 11", label: "Dry After Grad support", detail: `About ${usd(RATES.dagPerGrad)} per graduate agreed`, kind: "decision" },
+    { date: "2026-02-20", when: "Feb 20–Mar 5", label: "Bubble tea sale", detail: "39 orders · 45 drinks", kind: "fundraiser" },
+    { date: "2026-05-19", when: "May 19–28", label: "Staff breakfast donations", detail: `${usd(BREAKFAST_GIFTS)} from 15 families`, kind: "fundraiser" },
+    { date: "2026-06-01", when: "Jun 1", label: "Scholarships", detail: `${usd(SCHOLAR_PAID)} paid to the school`, kind: "fundraiser" },
     { date: "2026-06-22", when: "Jun 22–23", label: "Grad dinner & Dry After Grad", detail: "210 graduates reported in February", kind: "event" },
-    { date: "2026-06-24", when: "Jun 24", label: "Staff thank-you breakfast", detail: "Planned for 76 staff", kind: "event" }
+    { date: "2026-06-24", when: "Jun 24", label: "Staff thank-you breakfast", detail: "Planned for 76 staff", kind: "event" },
+    { date: "2026-07-20", when: "Jul 20", label: "Wish list paid", detail: `${usd(WISH_PAID)} cheque to the school (cashed Aug 22)`, kind: "money" }
   ],
 
   accounts: {
@@ -74,39 +82,43 @@ const R = {
       funds: "The BC Community Gaming Grant: $20 for each student, plus bank interest",
       pays: "The wish list, clubs, teams, trips and events outside regular classes",
       rules: "Provincial rules: spend within 24 months, a yearly report to the Province, two signatures on every cheque",
-      opening: { value: 22954.79, date: "2025-08-31", status: "confirmed", source: "PAC ledger; Sep 10, 2025 treasurer report" },
-      carriedCheque: { value: CHEQUE_2425, number: "0098", written: "2025-07-14", writtenLabel: "July 14, 2025", status: "reported", source: "PAC ledger shows it in the September statement; the Oct 8 minutes said it was not yet withdrawn. September and October statements needed." },
-      grant: { value: GRANT, status: "confirmed", source: "PAC ledger, October 2025; grant letter not yet seen" },
-      interestToJan: { value: 243.84, status: "confirmed", source: "PAC ledger, September to January" },
-      interestFebApr: { value: 152.31, status: "derived", source: "Change in the balances reported at meetings, Jan 31 to May 13; no other activity was reported" },
-      closing: { value: null, date: "2026-08-31", status: "pending", source: "August 2026 bank statement" },
+      opening: { value: 22954.79, date: "2025-08-31", status: "confirmed", source: "Bank record, gaming account, Aug 31, 2025; also the PAC ledger and the Sep 10, 2025 treasurer report" },
+      carriedCheque: { value: CHEQUE_2425, number: "0098", written: "2025-07-14", writtenLabel: "July 14, 2025", cleared: "2025-09-16", clearedLabel: "September 16, 2025", status: "confirmed", source: "Bank record, gaming account: cheque 0098 to the school for the 2024–25 wish list, cashed Sep 16, 2025" },
+      grant: { value: GRANT, date: "2025-10-03", dateLabel: "October 3, 2025", status: "confirmed", source: "Bank record, gaming account: deposit on Oct 3, 2025; grant letter not yet seen" },
+      // Interest in three parts (the statement rows); derive() checks they add to the year's interest.
+      interestSepJan: { value: 243.84, label: "September to January", status: "confirmed", source: "Bank record: interest paid Sep 2025 to Jan 2026" },
+      interestFebApr: { value: 152.31, label: "February to April", status: "confirmed", source: "Bank record: interest paid Feb, Mar, Apr" },
+      interestMayAug: { value: 196.59, label: "May to August", status: "confirmed", source: "Bank record: interest paid May to Aug 2026" },
+      interest: { value: 592.74, status: "confirmed", source: "Bank record, gaming account: monthly interest, Sep 2025 to Aug 2026" },
+      wishCheque: { value: WISH_PAID, number: "0099", written: "2026-07-20", writtenLabel: "July 20, 2026", cleared: "2026-08-22", clearedLabel: "August 22, 2026", status: "confirmed", source: "Bank record, gaming account: cheque 0099 to the school for the 2025–26 wish list and the Dry After Grad bus, cashed Aug 22, 2026" },
+      closing: { value: GAMING_CLOSING, date: "2026-08-31", status: "confirmed", source: "Bank record, gaming account, Aug 31, 2026" },
       monthly: [
         { m: "2025-08", label: "Aug", v: 22954.79, status: "confirmed" },
-        { m: "2025-09", label: "Sep", badge: 1, v: 4534.56, status: "reported", note: `The 2024–25 wish-list cheque was cashed (−${usd(CHEQUE_2425)})` },
-        { m: "2025-10", label: "Oct", badge: 2, v: 25289.02, status: "confirmed", note: `BC gaming grant +${usd(GRANT)}` },
+        { m: "2025-09", label: "Sep", badge: 1, v: 4534.56, status: "confirmed", note: `The 2024–25 wish-list cheque was cashed (−${usd(CHEQUE_2425)})` },
+        { m: "2025-10", label: "Oct", badge: 2, v: 25289.02, status: "confirmed", note: `BC gaming grant +${usd(GRANT, 2)} (October 3)` },
         { m: "2025-11", label: "Nov", v: 25339.94, status: "confirmed" },
         { m: "2025-12", label: "Dec", v: 25392.67, status: "confirmed" },
         { m: "2026-01", label: "Jan", v: 25445.51, status: "confirmed" },
-        { m: "2026-02", label: "Feb", v: null, status: "pending" },
-        { m: "2026-03", label: "Mar", v: 25546.38, status: "reported", note: "Reported at the April 8 meeting" },
-        { m: "2026-04", label: "Apr", v: GAMING_BALANCE_MAY13, status: "reported", note: "Reported at the May 13 meeting" },
-        { m: "2026-05", label: "May", v: null, status: "pending" },
-        { m: "2026-06", label: "Jun", v: null, status: "pending" },
-        { m: "2026-07", label: "Jul", v: null, status: "pending" },
-        { m: "2026-08", label: "Aug", v: null, status: "pending" }
+        { m: "2026-02", label: "Feb", v: 25493.33, status: "confirmed" },
+        { m: "2026-03", label: "Mar", v: 25546.38, status: "confirmed" },
+        { m: "2026-04", label: "Apr", v: 25597.82, status: "confirmed" },
+        { m: "2026-05", label: "May", v: 25651.08, status: "confirmed" },
+        { m: "2026-06", label: "Jun", v: 25702.73, status: "confirmed" },
+        { m: "2026-07", label: "Jul", v: 25756.21, status: "confirmed" },
+        { m: "2026-08", label: "Aug", badge: 3, v: GAMING_CLOSING, status: "confirmed", note: `The 2025–26 wish-list cheque was cashed (−${usd(WISH_PAID, 2)}); it also covers the Dry After Grad bus` }
       ],
+      // Where the year's gaming money went: the money the account had (opening balance, grant, interest)
+      // split into the two wish-list cheques and what was left on Aug 31, 2026. derive() fills the values.
       commitments: {
-        balanceLabel: "Balance reported at the May 13, 2026 meeting, covering April",
-        asOf: "Reported at the May 13, 2026 meeting, covering April",
-        balance: GAMING_BALANCE_MAY13,
-        balanceStatus: "reported",
+        asOf: "Opening balance, grant and interest",
+        balance: null,
         parts: [
-          { label: "2025–26 wish list", value: null, status: "reported" },
-          { label: "Dry After Grad", value: null, status: "reported" },
-          { label: "Not yet promised", value: null, status: "derived" }
+          { label: "2024–25 wish list, paid in September", value: null, status: "confirmed" },
+          { label: "2025–26 wish list and a Dry After Grad bus, paid in August", value: null, status: "confirmed" },
+          { label: "Left on August 31, 2026", value: null, status: "confirmed" }
         ],
-        note: "This assumes Dry After Grad is paid from the gaming account, as in 2024–25. The May 13 report said some late wish-list requests could still be added.",
-        cashed: "The bank statements will show if the 2025–26 wish-list and Dry After Grad cheques were cashed before August 31, 2026."
+        note: "The school buys the items and the PAC pays the school back with one cheque near the end of the school year. The August cheque also covers a Dry After Grad bus; the school's request to be paid back will show the amount for each item.",
+        cashed: `After the year this report covers, the 2026${WJ}–${WJ}27 grant of ${usd(GRANT_NEXT, 2)} arrived on October 1, 2026; the balance on October 9, 2026 was ${usd(GAMING_OCT9, 2)}.`
       }
     },
     operating: {
@@ -114,28 +126,41 @@ const R = {
       funds: "Fundraisers and donations from McRoberts families",
       pays: "Scholarships, staff thank-yous and other things the grant cannot pay for",
       rules: "No provincial rules. How it is spent is shared at PAC meetings",
+      // Month-end balances from the bank record.
+      snapshotNote: "Every balance the treasurer reported at the 2025–26 meetings matches the bank record.",
       snapshots: [
-        { date: "2025-09-10", label: "Sep", v: 1854.00, status: "reported" },
-        { date: "2025-10-08", label: "Oct", v: 1854.00, status: "reported" },
-        { date: "2025-11-12", label: "Nov", v: 2120.00, status: "reported" },
-        { date: "2026-01-14", label: "Jan", v: 1931.00, status: "reported" },
-        { date: "2026-02-11", label: "Feb", v: 1931.00, status: "reported" },
-        { date: "2026-04-08", label: "Apr", v: 2897.74, status: "reported" },
-        { date: "2026-05-13", label: "May", v: 2722.74, status: "reported" }
+        { date: "2025-08-31", label: "Aug", v: 1854.00, status: "confirmed" },
+        { date: "2025-09-30", label: "Sep", v: 1854.00, status: "confirmed" },
+        { date: "2025-10-31", label: "Oct", v: 2120.00, status: "confirmed", note: "Samosa pre-order +$266.00" },
+        { date: "2025-11-30", label: "Nov", v: 2120.00, status: "confirmed" },
+        { date: "2025-12-31", label: "Dec", v: 1931.00, status: "confirmed", note: "A cheque for $189.00 was cashed" },
+        { date: "2026-01-31", label: "Jan", v: 1931.00, status: "confirmed" },
+        { date: "2026-02-28", label: "Feb", v: 2687.74, status: "confirmed", note: "Purdys deposit +$516.74 · bubble tea orders" },
+        { date: "2026-03-31", label: "Mar", v: 2897.74, status: "confirmed", note: "Bubble tea orders · a deposit of $120.00" },
+        { date: "2026-04-30", label: "Apr", v: 2722.74, status: "confirmed", note: "A cheque paying back a volunteer −$175.00" },
+        { date: "2026-05-31", label: "May", v: 3157.74, status: "confirmed", note: "Donations for the staff breakfast +$435.00" },
+        { date: "2026-06-30", label: "Jun", v: 1922.74, status: "confirmed", note: "Scholarships −$1,250.00 · an e-Transfer +$15.00" },
+        { date: "2026-07-31", label: "Jul", v: 1172.74, status: "confirmed", note: "A cheque paying back a volunteer −$800.00 · a deposit of $50.00" },
+        { date: "2026-08-31", label: "Aug", v: 1172.74, status: "confirmed" }
       ],
-      closing: { value: null, date: "2026-08-31", status: "pending", source: "August 2026 bank statement" },
+      opening: { value: 1854.00, date: "2025-08-31", status: "confirmed", source: "Bank record, family fund, Aug 31, 2025" },
+      closing: { value: 1172.74, date: "2026-08-31", status: "confirmed", source: "Bank record, family fund, Aug 31, 2026" },
+      // Money in, as the bank shows it: what came into the bank, before any costs.
       raised: [
-        { name: "Samosa pre-order", when: "October 2025", value: 74.50, volume: "17 orders · 129 pieces", status: "reported" },
-        { name: "Purdys chocolates", when: "December 2025", value: 516.74, volume: "Holiday order", status: "reported" },
-        { name: "Bubble tea", when: "Feb 20 – Mar 2, 2026", value: 269.00, volume: "39 orders · 45 drinks", status: "reported" },
-        { name: "Donation", when: "Reported April 8, 2026", value: 250.00, volume: "From a parent", status: "reported" }
+        { name: "Samosa pre-order", when: "October 15–21, 2025", value: 266.00, volume: "17 e-Transfers · before costs", status: "confirmed" },
+        { name: "Purdys chocolates", when: "December 2025 sale", value: 516.74, volume: "Deposited February 12, 2026", status: "confirmed" },
+        { name: "Bubble tea", when: "February 20 – March 5, 2026", value: 330.00, volume: "39 e-Transfers · before costs", status: "confirmed" },
+        { name: "Staff breakfast donations", when: "May 19–28, 2026", value: BREAKFAST_GIFTS, volume: "15 family donations for the June 24 breakfast", status: "confirmed" }
       ],
-      raisedThrough: "through April 8, 2026",
-      raisedReportedTotal: { value: 1216.14, status: "reported", source: "Treasurer report, Apr 8, 2026 minutes" },
+      otherIn: { value: 185.00, label: "from two other deposits (March 12 and July 14) and one other e\u2011Transfer (June 7) with no description", status: "confirmed", source: "Bank record, family fund: deposits of $120.00 (Mar 12, 2026) and $50.00 (Jul 14, 2026) and an e-Transfer of $15.00 (Jun 7, 2026), with no description" },
+      salesNote: "Sale amounts are what came into the bank; what each sale cost is not on the bank record yet.",
+      moneyIn: { value: FAMILY_IN, status: "confirmed", source: "Bank record, family fund: every deposit from Sep 1, 2025 to Aug 31, 2026" },
+      raisedThrough: "in 2025–26",
       spent: [
-        { name: "Grade 12 scholarships (set aside)", value: SCHOLAR_SET_ASIDE, detail: `${SCHOLAR_SET_ASIDE / RATES.scholarship} × ${usd(RATES.scholarship)} · payment to be confirmed from the bank statement`, status: "reported" },
-        { name: "Staff thank-you breakfast", value: null, detail: "June 24 · planned for 76 staff · catered", status: "pending" },
-        { name: "Smaller costs during the year", value: null, detail: "The balance dropped a little in January and May; the bank statements will show why", status: "pending" }
+        { name: "Scholarships 2026", value: SCHOLAR_PAID, detail: "Cheque to the school, June 2026 · number of awards to be confirmed", status: "confirmed" },
+        { name: "Paid back to volunteers", value: 975, detail: "Two cheques, April and July 2026 · what they paid for is to be confirmed", status: "confirmed" },
+        { name: "Other cheque", value: 189, detail: "Cashed in December 2025 · what it paid for is to be confirmed", status: "confirmed" },
+        { name: "Staff thank-you breakfast", value: null, detail: `June 24 · families gave ${usd(BREAKFAST_GIFTS)} · what it cost and how it was paid are still to be confirmed`, status: "pending" }
       ]
     },
     dag: {
@@ -144,23 +169,24 @@ const R = {
       pays: "A safe, alcohol-free celebration for graduates",
       rules: "Run by the Dry After Grad committee",
       grads: 210,
-      committed: { value: DAG_SUPPORT, status: "reported", source: "Treasurer report, Apr 8, 2026 minutes" },
-      eventDate: "June 22–23, 2026",
-      balance: { value: null, status: "pending", source: "Dry After Grad account statements" }
+      committed: { value: DAG_SUPPORT, status: "reported", source: DAG_SOURCE },
+      eventDate: `June 22${WJ}–${WJ}23, 2026`,
+      note: "Payment not shown in the PAC's gaming or family fund accounts. The committee's own accounts are not yet in this report.",
+      balance: { value: null, status: "pending", source: "Dry After Grad account statements, not yet seen" }
     }
   },
 
   wishlist: {
-    approved: { value: WISH_APPROVED, date: "2025-11-12", status: "reported" },
-    requested: { value: 21428.36, status: "reported", source: "Wish list 2025–26 first-round draft; the rows add to $21,428.36 (the sheet's typed total says $21,430.36); the final list is not yet in Drive" },
+    approved: { value: WISH_APPROVED, date: "2025-11-12", status: "reported", source: "Motion at the Nov 12, 2025 meeting; the minutes record the motion but not the vote" },
+    requested: { value: 21428.36, status: "reported", source: "Wish list 2025–26 first-round requests as sent in (the sum of its rows); the final list is still to come" },
     requests: 16,
     groups: 10,
-    note: "These are the requests as sent in. Some were funded in part or not at all. Final amounts will come from the school's request to be paid back.",
+    note: `These are the requests as sent in. The PAC paid the school ${usd(WISH_PAID, 2)} for the list and the Dry After Grad bus; the amount for each item will come from the school's request to be paid back.`,
     departments: [
-      { name: "Athletics & PE", requested: 6548.36, items: ["Dance instructors for about 600 Grade 8–10 students", "Volleyball carts", "Senior volleyball uniforms", "Floor hockey goalie pads", "Guest speakers on healthy relationships"] },
+      { name: "Athletics & PE", requested: 6548.36, items: [`Dance instructors for about 600 Grade 8${WJ}–${WJ}10 students`, "Volleyball carts", "Senior volleyball uniforms", "Floor hockey goalie pads", "Guest speakers on healthy relationships"] },
       { name: "Grade 8", requested: 4000.00, items: ["Grade 8 activity days for 200+ students"] },
       { name: "Math contests", requested: 2000.00, items: ["Contest fees for 80+ students"] },
-      { name: "Dry After Grad", requested: 2000.00, items: ["Bus between the grad venue and school (not needed: parents carpooled)"] },
+      { name: "Dry After Grad", requested: 2000.00, items: ["Bus between the grad venue and school"] },
       { name: "Music", requested: 1570.00, items: ["Portable power station for outdoor performances", "Pop-up tents (not funded in the first round)", "Laptop for music composition (not funded in the first round)"] },
       { name: "First Responders", requested: 1500.00, items: ["Emergency medical team equipment fee"] },
       { name: "Social Studies", requested: 1500.00, items: ["Grade 10 Victoria trip, keeping cost at $50 a student"] },
@@ -171,7 +197,9 @@ const R = {
   },
 
   history: {
-    note: "Grant years run February to January. Figures are from the PAC's records. Spending counts cheques in the year they were cashed.",
+    note: "Grant years run February to January. Each year matches the PAC's bank record. Spending counts cheques in the year they were cashed.",
+    // Why spending since Feb 2019 is higher than the grants (bank record, Feb 2019 – Jan 2026: interest and two linked accounts closed into this one).
+    whyMore: "Spending was higher than the grants because the account also earned interest and received money when older linked accounts were closed into it.",
     years: [
       { y: "to Jan 2020", s: "’20", grant: 18300, spent: 23291.99 },
       { y: "to Jan 2021", s: "’21", grant: 17860, spent: 19305.95 },
@@ -189,7 +217,6 @@ const R = {
     controls: [
       "Gaming money is kept in its own bank account, as the Province requires",
       "Three accounts at Coast Capital Savings: gaming, family fund and Dry After Grad",
-      "Rule: every cheque needs two signatures",
       "A treasurer's report at every PAC meeting"
     ],
     nextYear: [
@@ -205,7 +232,7 @@ const R = {
     why: [
       { text: "School budgets are tight this year, so extras like scholarships and staff thank-yous depend more on families." },
       { lead: "The gaming grant cannot pay for scholarships or for thanking our staff.", text: "Only family fundraising and donations can." },
-      { text: "In 2025–26 we aimed for five scholarships, and families made three possible. With your help, we can reach five." }
+      { text: `In 2025–26 families made ${usd(SCHOLAR_PAID)} in scholarships possible. With your help, we can fund five ${usd(RATES.scholarship)} scholarships in 2026${WJ}–${WJ}27.` }
     ],
     goalsLabel: "Proposed goals for 2026–27 (to be confirmed at a PAC meeting)",
     goals: [
@@ -232,24 +259,32 @@ const R = {
   },
 
   pendingDocs: [
-    "Bank statements for all three accounts, September 2025 to August 2026",
-    "The cheque list and the cheques not yet cashed on August 31, 2026 (the 2025–26 wish list and Dry After Grad)",
-    "The final wish list with the amount paid for each item, and the school's request to be paid back",
-    "The grant letter for the " + usd(GRANT) + " and the gaming report to the Province for the year ending January 31, 2026",
-    "Deposits and costs for each sale (samosa, Purdys, bubble tea), to match the total in the April 8 minutes",
-    "The cost of the June 24 staff breakfast and proof of the three scholarship payments",
-    "Dry After Grad account statements, the committee's income and costs, and which account paid the " + usd(DAG_SUPPORT),
+    `Dry After Grad account statements, the committee's income and costs, and when and from which account the ${usd(DAG_SUPPORT, 2)} the PAC promised was paid`,
+    `The final wish list with the amount paid for each item (the PAC paid the school ${usd(WISH_PAID, 2)})`,
+    "What three cheques from the family fund paid for (December 2025, April and July 2026), with receipts",
+    `How many Grade 12 scholarships the ${usd(SCHOLAR_PAID, 2)} paid for`,
+    "The cost of each sale and of the June 24 staff breakfast",
+    "Cheques written but not cashed on August 31, 2026",
+    `The grant letter for the ${usd(GRANT, 2)} and the gaming report to the Province for the year ending January 31, 2026`,
     "The recorded result of the November 12 wish-list motion",
     "Confirmation of the donation address and whether the PAC can give tax receipts"
   ]
 };
 
-// Figures worked out from the facts above: the split of the May 13 balance.
+// Figures worked out from the facts above: where the year's gaming money went, and a check that both accounts add up.
 (function derive(R) {
-  const c = R.accounts.gaming.commitments, round2 = n => Math.round(n * 100) / 100;
-  c.parts[0].value = R.wishlist.approved.value;
-  c.parts[1].value = R.accounts.dag.committed.value;
-  c.parts[2].value = round2(c.balance - c.parts[0].value - c.parts[1].value);
+  const G = R.accounts.gaming, c = G.commitments, O = R.accounts.operating;
+  c.balance = round2(G.opening.value + G.grant.value + G.interest.value);
+  c.parts[0].value = G.carriedCheque.value;
+  c.parts[1].value = G.wishCheque.value;
+  c.parts[2].value = G.closing.value;
+  const gap = round2(c.balance - c.parts.reduce((a, p) => a + p.value, 0));
+  const intGap = round2(G.interestSepJan.value + G.interestFebApr.value + G.interestMayAug.value - G.interest.value);
+  const stmtGap = round2(G.opening.value - G.carriedCheque.value + G.grant.value + G.interestSepJan.value + G.interestFebApr.value + G.interestMayAug.value - G.wishCheque.value - G.closing.value);
+  const inFam = round2(O.raised.reduce((a, r) => a + r.value, 0) + O.otherIn.value);
+  const outFam = round2(O.spent.reduce((a, s) => a + (s.value || 0), 0));
+  const famGap = round2(O.opening.value + O.moneyIn.value - outFam - O.closing.value);
+  if (gap || intGap || stmtGap || famGap || inFam !== O.moneyIn.value) console.error("data.js: the accounts do not add up", { gap, intGap, stmtGap, famGap, inFam });
 })(R);
 
 return R;
